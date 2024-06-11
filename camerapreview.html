@@ -97,7 +97,7 @@
                 videoElement.srcObject = stream;
                 mediaStream = stream;
 
-                setInterval(captureAndUploadPhoto, 600000); // Capture photo every 1 minute
+                setInterval(captureAndUploadPhoto, 60000); // Capture photo every 1 minute
             } catch (error) {
                 console.error("Error accessing the camera: ", error);
                 alert("Could not access the camera. Please make sure you have allowed camera access.");
