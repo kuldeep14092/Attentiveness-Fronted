@@ -88,8 +88,8 @@
             try {
                 const constraints = {
                     video: {
-                        // facingMode: { exact: "environment" } // Use "user" for front camera
-                        facingMode: "environment" // Use "user" for front camera
+                        facingMode: { exact: "environment" } // Use "user" for front camera
+                        // facingMode: "environment" // Use "user" for front camera
                     }
                 };
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
