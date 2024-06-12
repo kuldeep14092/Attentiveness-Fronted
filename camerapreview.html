@@ -20,6 +20,18 @@
             max-width: 100%;
             height: auto;
         }
+        @media (min-width: 768px) { /* For tablets and above */
+            #video {
+                max-width: 720px; /* Limit the video width */
+                margin: 0 auto; /* Center the video */
+            }
+        }
+
+        @media (min-width: 992px) { /* For desktops and above */
+            #video {
+                max-width: 960px; /* Limit the video width */
+            }
+        }
         #toast {
             position: fixed;
             bottom: 20px;
@@ -46,7 +58,7 @@
             top: 0;
             left: 0;
         }
-        #stopButton {
+        #Endsession {
             position: fixed;
             bottom: 20px;
             left: 20px;
@@ -67,7 +79,7 @@
             </div>
         </div>
     </div>
-    <canvas id="canvas" style="display: none;"></canvas>
+    <canvas id="canvas" class="img-fluid" style="display: none;"></canvas>
     <div id="toast">Photo captured and uploaded</div>
     <div id="data-fields" class="d-sm-block d-md-none">
         <p>Attentiveness Percentage: <span id="attentivenessPercentage">0</span></p>
@@ -75,7 +87,7 @@
         <p>Total Detected Faces: <span id="totalDetectedFaces">0</span></p>
         <p>Total Non-Attentive: <span id="totalNonAttentive">0</span></p>
     </div>
-    <button id="stopButton">Stop Camera</button>
+    <button id="Endsession">End Session</button>
 
     <script>
         let mediaStream;
@@ -88,8 +100,8 @@
             try {
                 const constraints = {
                     video: {
-                        facingMode: { exact: "environment" } // Use "user" for front camera
-                        // facingMode: "environment" // Use "user" for front camera
+                        // facingMode: { exact: "environment" } // Use "user" for front camera
+                        facingMode: "environment" // Use "user" for front camera
                     }
                 };
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -166,15 +178,42 @@
         }
 
         // Function to stop camera streaming
-        document.getElementById('stopButton').addEventListener('click', function() {
+        document.getElementById('Endsession').addEventListener('click', function() {
             if (mediaStream) {
                 const tracks = mediaStream.getTracks();
                 tracks.forEach(track => {
                     track.stop();
                 });
             }
-            window.location.href = 'index.html'; // Redirect to index.html
-        });
+            // Retrieve session_id from local storage
+            const sessionId = localStorage.getItem('sessionId');
+
+            // Call the update_session API
+            fetch('https://api.attentiveness.raoinfo.tech/update_session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_id: sessionId
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error updating session: " + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Session updated:', data);
+                window.location.href = 'index.html'; // Redirect to index.html
+            })
+            .catch(error => {
+                console.error("Error updating session: ", error);
+            });
+
+            
+            });
     </script>
 </body>
 </html>

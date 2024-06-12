@@ -34,6 +34,8 @@
 
 
     <input type="submit" value="Submit">
+    <button id="HistoryButton">History</button>
+
   </form>
 
 
@@ -150,7 +152,9 @@
         console.error('Error:', error);
     });
 });
-
+document.getElementById('HistoryButton').addEventListener('click', function() {
+        window.location.href = 'History.html';
+    });
 
 
 </script>
