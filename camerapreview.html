@@ -92,6 +92,8 @@
     <script>
         let mediaStream;
 
+        
+           
         async function startCamera() {
             if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
                 alert("Your browser does not support accessing the camera.");
@@ -100,8 +102,8 @@
             try {
                 const constraints = {
                     video: {
-                        facingMode: { exact: "environment" } // Use "user" for front camera
-                        // facingMode: "environment" // Use "user" for front camera
+                        // facingMode: { exact: "environment" } // Use "user" for front camera
+                        facingMode: "environment" // Use "user" for front camera
                     }
                 };
                 const stream = await navigator.mediaDevices.getUserMedia(constraints);
@@ -115,7 +117,8 @@
                 alert("Could not access the camera. Please make sure you have allowed camera access.");
             }
         }
-
+            
+    
         function captureAndUploadPhoto() {
             const videoElement = document.getElementById('video');
             const canvasElement = document.getElementById('canvas');
@@ -157,15 +160,17 @@
             });
         }
 
-     
+        
+        
         
         window.addEventListener('load', function() {
-            // Retrieve the session id
+            // Retrieve the session id            
             var sessionId = localStorage.getItem('sessionId');
-
+            
             // Log the session id
             console.log('Session ID:', sessionId);
             startCamera();
+            captureAndUploadPhoto();
         });
 
         function showToast(message) {

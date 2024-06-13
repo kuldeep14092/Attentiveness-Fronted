@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>History</title>
+    <style>
+        .card {
+            border: 1px solid #ddd;
+            padding: 15px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align: center;">Attentiveness Logs</h1>
+    <!-- <button id="submitButton">Submit</button> -->
+    <div id="logs"></div>
+    <div id="summary"></div>
+
+    <script>
+        // Function to handle form submission
+        function handleSubmit() {
+            // Retrieve session_id from local storage
+            // const sessionId = localStorage.getItem('sessionId');
+
+            // Check if sessionId exists
+            // if (!sessionId) {
+            //     console.error('Session ID not found in local storage');
+            //     return;
+            // }
+
+            // Construct the data to send in the API request
+            const data = {
+                session_id: localStorage.getItem('currentSessionId')
+            };
+
+            // Make the API request
+            fetch('https://api.attentiveness.raoinfo.tech/get_session_summary', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            })
+            .then(response => response.json())
+            
+            .then(apiResponse => {
+                // Handle API response
+                console.log('API Response:', apiResponse);
+
+                // Get the logs and summary divs
+                const logsDiv = document.getElementById('logs');
+                const summaryDiv = document.getElementById('summary');
+
+                // Clear previous data
+                logsDiv.innerHTML = '';
+                summaryDiv.innerHTML = '';
+
+                console.log(apiResponse.logs)
+
+                // Display logs
+                apiResponse.logs.forEach(log => {
+                    const logElement = document.createElement('div');
+                    logElement.className = 'card';
+                    logElement.innerHTML = `
+                    <p>Attentiveness: ${log.attentiveness_percentage}</p>
+                <p>Found Faces: ${log.found_faces}</p>
+                <p>ID: ${log.id}</p>
+                <p>Session ID: ${log.session_id}</p>
+                <p>Timestamp: ${log.timestamp}</p>
+            `;
+                    logsDiv.appendChild(logElement);
+                });
+
+                // Display summary
+                const summaryElement = document.createElement('div');
+                summaryElement.className = 'card';
+                summaryElement.innerHTML = `
+                <p>Average Attentiveness: ${apiResponse.summary.average_attentiveness}</p>
+            <p>Total Attentive: ${apiResponse.summary.total_attentive}</p>
+            <p>Total Non-Attentive: ${apiResponse.summary.total_non_attentive}</p>
+        `;
+                summaryDiv.appendChild(summaryElement);
+            })
+            .catch(error => {
+                console.error('Error fetching session summary:', error);
+            });
+        }
+
+        // Add event listener to the submit button
+        // document.getElementById('submitButton').addEventListener('click', handleSubmit);
+
+        // Function to run on page load
+        window.onload = function() {
+            // Example: Set session_id in local storage (replace with your logic)
+            var currentSessionId = localStorage.getItem('currentSessionId');
+            console.log('Session ID:', currentSessionId);
+            handleSubmit();
+        };
+    </script>
+</body>
+</html>

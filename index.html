@@ -5,6 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Dropdown Form</title>
 <link rel="stylesheet" type="text/css" href="Drop-Down-Form.css">
+<style>
+    .button-group { 
+        display: flex;
+        justify-content: space-between;
+    }
+    .button-group button, .button-group input {
+       flex: 1;
+       margin: 5px;
+    }
+     
+</style>
 </head>
 <body>
 
@@ -32,9 +43,10 @@
         </select>
     </div>
 
-
+    <div class="button-group">
     <input type="submit" value="Submit">
     <button id="HistoryButton">History</button>
+    </div>
 
   </form>
 
