@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dropdown Form</title>
+<link rel="stylesheet" type="text/css" href="Drop-Down-Form.css">
+<style>
+    .button-group { 
+        display: flex;
+        justify-content: space-between;
+    }
+    .button-group button, .button-group input {
+       flex: 1;
+       margin: 5px;
+    }
+     
+</style>
+</head>
+<body>
+<div class="header-name"></div>
+
+<div class="container">
+  <form id="myForm">
+    <div class="form-header"></div>
+    <div class="form-group">
+    <label class="form-heading" for="Classes">Class :</label>
+    <select id="Classes" name="Classes" onchange="updateSubDropdown(); updateClassDropdown();">
+        <!-- Options will be added here dynamically -->
+    </select>
+</div>
+
+    <div class="form-group">
+        <label class="form-heading" for="Courses">Courses :</label>
+        <select id="Courses" name="Courses">
+          <!-- Options will be added here dynamically -->
+        </select>
+      </div>
+
+    <div class="form-group">
+        <label class="form-heading" for="Teacheres">Teacheres:</label>
+        <select id="Teacheres" name="Teacheres">
+        <!-- Options will be added here dynamically -->
+        </select>
+    </div>
+
+    <div class="button-group">
+    <input type="submit" value="Submit">
+    <button id="HistoryButton">History</button>
+    </div>
+
+  </form>
+
+
+  <script>
+    function updateSubDropdown() {
+    // Get the selected value from the main dropdown
+    var selectedValue = document.getElementById('Classes').value;
+    
+
+    // Based on the selected value, update the options in the sub dropdown
+    var subDropdown = document.getElementById('SubClasses');
+    subDropdown.innerHTML = ""; // Clear out the existing options
+
+    // Add new options based on the selected value
+  
+    if (selectedValue === 'Classes') {
+        var opt = document.createElement("option");
+        opt.value = 'Courses';
+        opt.innerHTML = 'Courses';
+        subDropdown.appendChild(opt);
+    } else if (selectedValue === 'Classes') {
+        var opt = document.createElement("option");
+        opt.value = 'Teacheres';
+        opt.innerHTML = 'Teacheres';
+        subDropdown.appendChild(opt);
+    }
+}
+    
+    async function updateClassDropdown() {
+        try {
+            const response = await fetch('https://api.attentiveness.raoinfo.tech/get_details'); // Replace with your API URL
+            // console.log(response)
+            if (!response.ok) {
+                console.error("Error fetching data: ", response.statusText);
+                return;
+            }
+
+            const data = await response.json();
+
+            
+
+            // Get the dropdown elements
+            var classDropdown = document.getElementById('Classes');
+            var courseDropdown = document.getElementById('Courses');
+            var teacherDropdown = document.getElementById('Teacheres');
+
+            // Clear out the existing options
+            classDropdown.innerHTML = "";
+            courseDropdown.innerHTML = "";
+            teacherDropdown.innerHTML = "";
+
+            // Add the fetched options to the dropdowns
+            data.classes.forEach(item => {
+                var opt = document.createElement("option");
+                opt.value = item;
+                opt.innerHTML = item;
+                classDropdown.appendChild(opt);
+            });
+
+            data.courses.forEach(item => {
+                var opt = document.createElement("option");
+                opt.value = item;
+                opt.innerHTML = item;
+                courseDropdown.appendChild(opt);
+            });
+
+            data.teachers.forEach(item => {
+                var opt = document.createElement("option");
+                opt.value = item;
+                opt.innerHTML = item;
+                teacherDropdown.appendChild(opt);
+            });
+        } catch (error) {
+            console.error("Error fetching data: ", error);
+        }
+    }
+
+    // Call the function to update the dropdowns
+    updateClassDropdown();    
+
+    document.getElementById('myForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+
+   // Get the selected values from the dropdowns
+   var selectedClasses = document.getElementById('Classes').value;
+   var selectedTeacheres = document.getElementById('Teacheres').value; 
+   var selectedCourses = document.getElementById('Courses').value;
+   
+//    // Log the selected values to the console
+//    console.log('Selected Class:', selectedClasses);
+//     console.log('Selected Teacher:', selectedTeacheres);
+//     console.log('Selected Course:', selectedCourses);
+
+    // Send the request to the server without any data
+    fetch('https://api.attentiveness.raoinfo.tech/start_session', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            class: selectedClasses,
+            teacher: selectedTeacheres,
+            course: selectedCourses 
+        })
+        
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Success:', data);
+        // console.log('Session ID:', data.sessionId); // Store the session id in the console
+        localStorage.setItem('sessionId', data.session_id); // Store the session id in local storage
+        window.location.href = 'camerapreview.html'; // Redirect to camerapreview.html
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+});
+document.getElementById('HistoryButton').addEventListener('click', function() {
+        window.location.href = 'History.html';
+    });
+
+
+</script>
+
+</script>
+</div>
+</body>
+</html>

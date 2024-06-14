@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Back Camera Access</title>
+   
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #ffffff;
+            position: relative;
+        }
+        video {
+            border: 2px solid #000;
+            max-width: 100%;
+            height: auto;
+        }
+        @media (min-width: 768px) { /* For tablets and above */
+            #video {
+                max-width: 720px; /* Limit the video width */
+                margin: 0 auto; /* Center the video */
+            }
+        }
+
+        @media (min-width: 992px) { /* For desktops and above */
+            #video {
+                max-width: 960px; /* Limit the video width */
+            }
+        }
+        #toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #333;
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #data-fields {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+            color: #fff;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        video {
+            position: fixed;
+            width: 100%;
+            top: 0;
+            left: 0;
+        }
+        #Endsession {
+        position: relative;
+        bottom: 0%;
+        /* left: 50%; Change from left to center */
+        transform: translateX(-50%); /* Adjust for the width of the button */
+        background-color: #333;
+        color: #fff;
+        padding: 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        
+        
+    }
+    .sessionid{
+        position: relative;
+        left: 0;
+        bottom: 0;
+        background-color: #333;
+        color: #fff;
+        transform: translateX(-50%);
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
+                <video id="video" autoplay></video>
+            </div>
+        </div>
+    </div>
+    <canvas id="canvas" class="img-fluid" style="display: none;"></canvas>
+    <div id="toast">Photo captured and uploaded</div>
+    <div id="data-fields" class="d-sm-block d-md-none">
+        <p>Attentiveness<span id="attentivenessPercentage">0</span>%</p>
+        <p>Total Attentive: <span id="totalAttentive">0</span></p>
+        <p>Total Detected Faces: <span id="totalDetectedFaces">0</span></p>
+        <p>Total Non-Attentive: <span id="totalNonAttentive">0</span></p>
+    </div>
+    
+    <p class="sessionid" id="sessionId"></p>
+    
+    <button id="Endsession">End Session</button>
+
+    <script>
+        let mediaStream;
+        window.onload = function() {
+            startCamera();
+             
+        };
+        
+           
+        async function startCamera() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                alert("Your browser does not support accessing the camera.");
+                return;
+            }
+            try {
+                const constraints = {
+                    video: {
+                        // facingMode: { exact: "environment" } // Use "user" for front camera
+                        facingMode: "environment" // Use "user" for front camera
+                    }
+                };
+                const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                const videoElement = document.getElementById('video');
+                videoElement.srcObject = stream;
+
+                videoElement.onloadedmetadata = function(e) {
+                    videoElement.play();
+                    mediaStream = stream;
+                    captureAndUploadPhoto();
+                };
+                
+
+                setInterval(captureAndUploadPhoto, 60000); // Capture photo every 1 minute
+            } catch (error) {
+                console.error("Error accessing the camera: ", error);
+                alert("Could not access the camera. Please make sure you have allowed camera access.");
+            }
+        }
+            
+
+
+        function captureAndUploadPhoto() {
+            const videoElement = document.getElementById('video');
+            const canvasElement = document.getElementById('canvas');
+            const context = canvasElement.getContext('2d');
+
+            canvasElement.width = videoElement.videoWidth;
+            canvasElement.height = videoElement.videoHeight;
+
+            context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+
+            // Retrieve the session id
+            var sessionId = localStorage.getItem('sessionId'); 
+            document.getElementById('sessionId').textContent = 'sessionID:' +sessionId;
+
+            // Convert the canvas image to Base64
+            const base64Image = canvasElement.toDataURL('image/jpeg');
+            const base64String = base64Image.split(',')[1];
+            
+            // Create a URL-encoded string to send to the server
+            const data = "session_id=" + encodeURIComponent(sessionId) + "&image=" + encodeURIComponent(base64String);
+            console.log(data);
+            fetch('https://api.attentiveness.raoinfo.tech/get_attentiveness', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: data,
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Store the data in the specified fields
+                console.log(data);
+                document.getElementById('attentivenessPercentage').textContent = data.attentiveness_percentage;
+                document.getElementById('totalAttentive').textContent = data.total_attentive;
+                document.getElementById('totalDetectedFaces').textContent = data.total_detected_faces;
+                document.getElementById('totalNonAttentive').textContent = data.total_non_attentive;
+                })
+            .catch(error => {
+                console.error("Error uploading photo: ", error);
+            });
+        }
+
+        
+        
+        
+        window.addEventListener('load', function() {
+            // Retrieve the session id            
+            var sessionId = localStorage.getItem('sessionId');
+            
+            // Log the session id
+            console.log('Session ID:', sessionId);
+            
+            // captureAndUploadPhoto();
+        });
+
+        function showToast(message) {
+            const toastElement = document.getElementById('toast');
+            toastElement.textContent = message;
+            toastElement.style.opacity = 1;
+            setTimeout(() => {
+                toastElement.style.opacity = 0;
+            }, 3000);
+        }
+
+        // Function to stop camera streaming
+        document.getElementById('Endsession').addEventListener('click', function() {
+            if (mediaStream) {
+                const tracks = mediaStream.getTracks();
+                tracks.forEach(track => {
+                    track.stop();
+                });
+            }
+            // Retrieve session_id from local storage
+            const sessionId = localStorage.getItem('sessionId');
+
+            // Call the update_session API
+            fetch('https://api.attentiveness.raoinfo.tech/update_session', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    session_id: sessionId
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error("Error updating session: " + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Session updated:', data);
+                window.location.href = 'index.html'; // Redirect to index.html
+            })
+            .catch(error => {
+                console.error("Error updating session: ", error);
+            });
+
+            
+            });
+    </script>
+</body>
+</html>
