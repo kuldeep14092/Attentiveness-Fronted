@@ -20,18 +20,18 @@
             max-width: 100%;
             height: auto;
         }
-        @media (min-width: 768px) { /* For tablets and above */
+        /* @media (min-width: 768px) { /* For tablets and above
             #video {
                 max-width: 720px; /* Limit the video width */
-                margin: 0 auto; /* Center the video */
-            }
-        }
+                /* margin: 0 auto; Center the video */
+            /* } */
+        /* } */ */
 
-        @media (min-width: 992px) { /* For desktops and above */
-            #video {
-                max-width: 960px; /* Limit the video width */
-            }
-        }
+        /* @media (min-width: 992px) { For desktops and above */
+            /* #video { */
+                /* max-width: 960px; Limit the video width */
+            /* } */
+        /* } */ */
         #toast {
             position: fixed;
             bottom: 20px;
@@ -59,27 +59,25 @@
             left: 0;
         }
         #Endsession {
-        position: relative;
-        bottom: 0%;
-        /* left: 50%; Change from left to center */
-        transform: translateX(-50%); /* Adjust for the width of the button */
-        background-color: #333;
-        color: #fff;
-        padding: 20px;
-        border: none;
-        border-radius: 5px;
-        cursor: pointer;
-        
-        
-    }
-    .sessionid{
-        position: relative;
-        left: 0;
-        bottom: 0;
-        background-color: #333;
-        color: #fff;
-        transform: translateX(-50%);
-    }
+    position: fixed;
+    left: 0;
+    bottom: 0;
+    background-color: #333;
+    color: #fff;
+    padding: 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+.sessionid {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    background-color: #333;
+    color: #fff;
+    padding: 10px;
+    border-radius: 5px;
+}
     </style>
 </head>
 <body>
@@ -107,7 +105,6 @@
         let mediaStream;
         window.onload = function() {
             startCamera();
-             
         };
         
            
@@ -132,8 +129,8 @@
                     mediaStream = stream;
                     captureAndUploadPhoto();
                 };
-                
-
+                const wakeLock = await navigator.wakeLock.request('screen');
+                console.log('Screen Wake Lock is active:');
                 setInterval(captureAndUploadPhoto, 60000); // Capture photo every 1 minute
             } catch (error) {
                 console.error("Error accessing the camera: ", error);
