@@ -6,30 +6,63 @@
 <title>History</title>
 <style>
     /* CSS for styling the cart */
+    .header-name {
+            text-align: center;
+            font-size: 40px;
+            border: 8px solid black;
+            margin: 10px;   
+            border-radius: 15px;
+            border-color: rgb(110, 184, 168);
+        }
+
     #cart {
-        border: 1px solid #000000;
+        border: 5px solid #afafaf;
         padding: 10px;
         margin: 10px;
     }
+    .data {
+    font-size: 20px;
+}
+    .total {
+        font-size: 25px;
+        font-weight: bold;
+    }
+
+    .pagination-buttons {
+        margin: 10px;
+        padding: 10px;
+        font-size: 20px;
+        background-color: #4fa4c5;
+        color: white;
+        border: none;
+        cursor: pointer;
+        gap: 50px;
+    }
+
 </style>
 </head>
 <body>
 
 
-<h2 style="text-align: center;">Attentiveness History</h2>
+<h2 class="header-name">Attentiveness History</h2>
 <div id="cart">
     
     
     <div id="cart">
         <div id="cart-items"></div>
-        <p>Total: <span id="total">0</span></p>
+        <p class="total">Total: <span id="total">0</span></p>
     </div>
+    <span id="total-logs"></span>
     
 </div>
+<button class="pagination-buttons" onclick="previousPage()">Previous</button>
+<button class="pagination-buttons" onclick="nextPage()">Next</button>
 
 <script>
     // JavaScript for handling the cart functionality
     let cartItems = [];
+    let currentPage = 1;
+    const logsPerPage = 10;
     let total ;
 
     window.onload = function() {
@@ -59,7 +92,11 @@ function updateCart() {
     const cartItemsContainer = document.getElementById('cart-items');
     cartItemsContainer.innerHTML = '';
 
-    cartItems.forEach(session => {
+    let start = (currentPage - 1) * logsPerPage;
+    let end = start + logsPerPage;
+    let paginatedItems = cartItems.slice(start, end);
+
+    paginatedItems.forEach(session => {
         const div = document.createElement('div');
         console.log("session", session);
         const sessionElement = document.createElement('div');
@@ -69,23 +106,40 @@ function updateCart() {
         };
         
         sessionElement.innerHTML = `
-            <p>Class: ${session.class_title}</p>
-            <p>Course: ${session.course_name}</p>
-            <p>Start Time: ${session.start_time}</p>
-            <p>End Time: ${session.end_time}</p>
-            <p>Teacher Name: ${session.teacher_name}</p>
+            <p class="data"><strong>Class:</strong> ${session.class_title}</p>
+            <p class="data"><strong>Course:</strong> ${session.course_name}</p>
+            <p class="data"><strong>Start Time:</strong> ${session.start_time}</p>
+            <p class="data"><strong>End Time:</strong> ${session.end_time}</p>
+            <p class="data"><strong>Teacher Name:</strong> ${session.teacher_name}</p>
             <hr>
         `;
         cartItemsContainer.appendChild(sessionElement);
     });
 
     calculateTotal();
+    
 }
 
 function calculateTotal() {
     total = cartItems.length; // Just an example calculation
     document.getElementById('total').textContent = total;
 }
+
+function previousPage() {
+    if (currentPage > 1) {
+        currentPage--;
+        updateCart();
+    }
+}
+
+function nextPage() {
+    if (currentPage < Math.ceil(cartItems.length / logsPerPage)) {
+        currentPage++;
+        updateCart();
+    }
+}
+
+
    
 </script>
 

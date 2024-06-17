@@ -5,16 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>History</title>
     <style>
+        .header-name {
+            text-align: center;
+            font-size: 40px;
+            border: 8px solid black;
+            margin: 10px;   
+            border-radius: 15px;
+            border-color: rgb(110, 184, 168);
+        }
         .card {
-            border: 1px solid #ddd;
+            border: 5px solid #afafaf;
+            border-radius: 20px;
             padding: 15px;
             margin-bottom: 10px;
             border-radius: 5px;
+
+        }
+        .log {
+            font-size: 25px;
+            
+        }
+        .summary {
+            font-size: 25px;
         }
     </style>
+
 </head>
 <body>
-    <h1 style="text-align: center;">Attentiveness Logs</h1>
+    <h1 class="header-name">Attentiveness Logs</h1>
     <!-- <button id="submitButton">Submit</button> -->
     <div id="summary"></div>
     <div id="logs"></div>
@@ -66,11 +84,11 @@
                     const logElement = document.createElement('div');
                     logElement.className = 'card';
                     logElement.innerHTML = `
-                    <p>Attentiveness Percentage: ${log.attentiveness_percentage}</p>
-                <p>Found Faces: ${log.found_faces}</p>
-                <p>ID: ${log.id}</p>
-                <p>Session ID: ${log.session_id}</p>
-                <p>Timestamp: ${log.timestamp}</p>
+                    <p class="summary">Attentiveness Percentage: ${log.attentiveness_percentage}</p>
+                <p class="summary">Found Faces: ${log.found_faces}</p>
+                <p class="summary">ID: ${log.id}</p>
+                <p class="summary">Session ID: ${log.session_id}</p>
+                <p class="summary">Timestamp: ${log.timestamp}</p>
             `;
                     logsDiv.appendChild(logElement);
                 });
@@ -79,9 +97,9 @@
                 const summaryElement = document.createElement('div');
                 summaryElement.className = 'card';
                 summaryElement.innerHTML = `
-                <p>Average Attentiveness: ${apiResponse.summary.average_attentiveness}</p>
-            <p>Total Attentive: ${apiResponse.summary.total_attentive}</p>
-            <p>Total Non-Attentive: ${apiResponse.summary.total_non_attentive}</p>
+                <p class="log">Average Attentiveness: ${apiResponse.summary.average_attentiveness}</p>
+            <p class="log">Total Attentive: ${apiResponse.summary.total_attentive}</p>
+            <p class="log">Total Non-Attentive: ${apiResponse.summary.total_non_attentive}</p>
         `;
                 summaryDiv.appendChild(summaryElement);
             })
